@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>多媒体管理中心</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="app-title">
+      <div class="app-title-main">
+        多媒体管理中心
+        <span class="app-badge">Demo · 本地数据</span>
+      </div>
+      <div class="app-subtitle">统一管理视频与照片，支持标签筛选与编辑</div>
+    </div>
+    <div class="toolbar-tabs">
+      <button class="tab-btn active" data-tab="video" aria-pressed="true">
+        <span class="icon">🎬</span>
+        视频管理
+      </button>
+      <button class="tab-btn" data-tab="photo" aria-pressed="false">
+        <span class="icon">🖼️</span>
+        照片管理
+      </button>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- 左侧：列表 / 网格 -->
+    <section class="column sidebar">
+      <!-- 全局标签筛选 -->
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="card-title-icon">🏷️</span>
+                标签筛选
+              </div>
+              <div class="card-subtitle">根据标签筛选当前模块中的视频或照片</div>
+            </div>
+          </div>
+          <div id="tagFilterBar" class="tag-filter-bar">
+            <!-- 动态插入标签按钮 -->
+          </div>
+        </div>
+      </div>
+
+      <div class="card helper-card" id="localVideoCard">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="card-title-icon">💻</span>
+                添加本地视频
+              </div>
+              <div class="card-subtitle">选择本地文件并快速生成播放条目（仅当前会话有效）</div>
+            </div>
+            <div id="backendStatus" class="status-badge" aria-live="polite">
+              <span class="status-dot"></span>
+              未连接后端
+            </div>
+          </div>
+          <form id="localVideoForm" class="stacked-form">
+            <div class="input-block">
+              <label for="localVideoFile" class="muted">本地视频文件</label>
+              <input id="localVideoFile" class="input" type="file" accept="video/*" />
+              <div class="input-note">文件仅在当前浏览器内使用，不会被上传。</div>
+            </div>
+            <div class="input-block">
+              <label for="localVideoTitle" class="muted">显示标题（可选）</label>
+              <input
+                id="localVideoTitle"
+                class="input"
+                type="text"
+                placeholder="未填写时使用文件名"
+                autocomplete="off"
+              />
+            </div>
+            <div class="input-block">
+              <label for="localVideoTags" class="muted">初始标签（逗号分隔，可选）</label>
+              <input
+                id="localVideoTags"
+                class="input"
+                type="text"
+                placeholder="例如：本地, 待整理"
+                autocomplete="off"
+              />
+            </div>
+            <div class="input-block">
+              <label for="localVideoPath" class="muted">可选：后端保存路径</label>
+              <input
+                id="localVideoPath"
+                class="input"
+                type="text"
+                placeholder="例如：videos/my-local-file.mp4"
+                autocomplete="off"
+              />
+              <div class="input-note">填入可被服务的相对路径以同步到后端 SQLite。</div>
+            </div>
+            <button class="btn" type="submit">
+              <span>＋</span>生成本地播放条目
+            </button>
+            <div class="input-note" id="localVideoHint">
+              本地条目在刷新后会被清空；若填写了路径，标签会同步到后端。
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- 视频列表 / 照片网格 -->
+      <div class="card" id="sideListCard">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title" id="sideListTitle">
+                <span class="card-title-icon">🎬</span>
+                视频播放列表
+              </div>
+              <div class="card-subtitle" id="sideListSubtitle">
+                点击选择要播放的视频
+              </div>
+            </div>
+          </div>
+
+          <!-- 视频列表 -->
+          <div id="videoList" class="video-list">
+            <!-- 动态插入 -->
+          </div>
+
+          <!-- 照片网格 -->
+          <div id="photoGrid" class="photo-grid" style="display:none;">
+            <!-- 动态插入 -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 右侧：内容区 -->
+    <section class="column content">
+      <!-- 视频视图 -->
+      <div id="videoView" class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="card-title-icon">📺</span>
+                视频播放
+              </div>
+              <div class="card-subtitle">支持基本播放控制与标签管理</div>
+            </div>
+          </div>
+
+          <div class="video-player-wrapper">
+            <video id="videoPlayer" controls preload="metadata">
+              <!-- 动态设置 src -->
+              您的浏览器不支持 HTML5 视频标签。
+            </video>
+          </div>
+
+          <div class="video-info">
+            <div class="pill-row">
+              <div class="video-info-title" id="currentVideoTitle">
+                暂无可播放视频
+              </div>
+              <div class="pill-badge">
+                <span class="pill-badge-dot"></span>
+                <span id="currentVideoMeta">0 个标签</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="muted">视频标签</div>
+              <div id="currentVideoTags" class="tag-list">
+                <!-- 动态插入 -->
+              </div>
+              <form id="addVideoTagForm" class="inline-form">
+                <input
+                  id="videoTagInput"
+                  class="input"
+                  type="text"
+                  placeholder="为当前视频添加一个标签（回车确认）"
+                  autocomplete="off"
+                />
+                <button class="btn" type="submit">
+                  <span>＋</span>添加标签
+                </button>
+              </form>
+              <div class="row-between" style="margin-top:4px;">
+                <span class="muted">点击标签可删除</span>
+                <button class="btn-ghost btn" type="button" id="deleteCurrentVideoBtn">
+                  <span>🗑</span>删除当前视频（演示）
+                </button>
+              </div>
+              <div class="danger-text">※ 本示例仅管理前端本地数据，不包含真实上传 / 删除接口</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 照片视图 -->
+      <div id="photoView" class="card" style="display:none;">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="card-title-icon">🖼️</span>
+                照片预览
+              </div>
+              <div class="card-subtitle">点击左侧缩略图预览大图并管理标签</div>
+            </div>
+          </div>
+
+          <div class="photo-preview-wrapper" id="photoPreviewWrapper">
+            <!-- 动态插入 -->
+          </div>
+
+          <div class="video-info" style="margin-top:10px;">
+            <div class="pill-row">
+              <div class="video-info-title" id="currentPhotoTitle">
+                请选择左侧的一张照片
+              </div>
+              <div class="pill-badge">
+                <span class="pill-badge-dot"></span>
+                <span id="currentPhotoMeta">0 个标签</span>
+              </div>
+            </div>
+
+            <div>
+              <div class="muted">照片标签</div>
+              <div id="currentPhotoTags" class="tag-list">
+                <!-- 动态插入 -->
+              </div>
+              <form id="addPhotoTagForm" class="inline-form">
+                <input
+                  id="photoTagInput"
+                  class="input"
+                  type="text"
+                  placeholder="为当前照片添加一个标签（回车确认）"
+                  autocomplete="off"
+                />
+                <button class="btn" type="submit">
+                  <span>＋</span>添加标签
+                </button>
+              </form>
+              <div class="row-between" style="margin-top:4px;">
+                <span class="muted">点击标签可删除</span>
+                <button class="btn-ghost btn" type="button" id="deleteCurrentPhotoBtn">
+                  <span>🗑</span>删除当前照片（演示）
+                </button>
+              </div>
+              <div class="danger-text">※ 照片仅为演示数据，请替换为你自己的资源路径</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
