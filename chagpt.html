@@ -265,6 +265,59 @@
       gap: 6px;
     }
 
+    .helper-card {
+      border: 1px dashed var(--border);
+    }
+
+    .input-note {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid var(--border);
+      background: rgba(15,23,42,0.9);
+      color: var(--text-muted);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.4);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--border);
+      box-shadow: 0 0 10px rgba(148,163,184,0.4);
+    }
+
+    .status-badge.ok {
+      border-color: rgba(56,189,248,0.6);
+      color: #dbeafe;
+      background: rgba(56,189,248,0.12);
+    }
+
+    .status-badge.ok .status-dot {
+      background: #38bdf8;
+      box-shadow: 0 0 12px rgba(56,189,248,0.8);
+    }
+
+    .status-badge.error {
+      border-color: rgba(248,113,113,0.7);
+      background: rgba(185,28,28,0.12);
+      color: #fecdd3;
+    }
+
+    .status-badge.error .status-dot {
+      background: #fb7185;
+      box-shadow: 0 0 12px rgba(251,113,133,0.7);
+    }
+
     .video-item {
       display: flex;
       gap: 8px;
@@ -358,6 +411,12 @@
       border: 1px solid rgba(148,163,184,0.5);
       color: #cbd5f5;
       background: rgba(15,23,42,0.9);
+    }
+
+    .mini-tag-local {
+      background: rgba(56,189,248,0.18);
+      border-color: rgba(56,189,248,0.65);
+      color: #e0f2fe;
     }
 
     .counter {
@@ -463,6 +522,19 @@
       gap: 6px;
       flex-wrap: nowrap;
       align-items: center;
+    }
+
+    .stacked-form {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .input-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
     .input {
@@ -715,6 +787,68 @@
         </div>
       </div>
 
+      <div class="card helper-card" id="localVideoCard">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="card-title-icon">💻</span>
+                添加本地视频
+              </div>
+              <div class="card-subtitle">选择本地文件并快速生成播放条目（仅当前会话有效）</div>
+            </div>
+            <div id="backendStatus" class="status-badge" aria-live="polite">
+              <span class="status-dot"></span>
+              未连接后端
+            </div>
+          </div>
+          <form id="localVideoForm" class="stacked-form">
+            <div class="input-block">
+              <label for="localVideoFile" class="muted">本地视频文件</label>
+              <input id="localVideoFile" class="input" type="file" accept="video/*" />
+              <div class="input-note">文件仅在当前浏览器内使用，不会被上传。</div>
+            </div>
+            <div class="input-block">
+              <label for="localVideoTitle" class="muted">显示标题（可选）</label>
+              <input
+                id="localVideoTitle"
+                class="input"
+                type="text"
+                placeholder="未填写时使用文件名"
+                autocomplete="off"
+              />
+            </div>
+            <div class="input-block">
+              <label for="localVideoTags" class="muted">初始标签（逗号分隔，可选）</label>
+              <input
+                id="localVideoTags"
+                class="input"
+                type="text"
+                placeholder="例如：本地, 待整理"
+                autocomplete="off"
+              />
+            </div>
+            <div class="input-block">
+              <label for="localVideoPath" class="muted">可选：后端保存路径</label>
+              <input
+                id="localVideoPath"
+                class="input"
+                type="text"
+                placeholder="例如：videos/my-local-file.mp4"
+                autocomplete="off"
+              />
+              <div class="input-note">填入可被服务的相对路径以同步到后端 SQLite。</div>
+            </div>
+            <button class="btn" type="submit">
+              <span>＋</span>生成本地播放条目
+            </button>
+            <div class="input-note" id="localVideoHint">
+              本地条目在刷新后会被清空；若填写了路径，标签会同步到后端。
+            </div>
+          </form>
+        </div>
+      </div>
+
       <!-- 视频列表 / 照片网格 -->
       <div class="card" id="sideListCard">
         <div class="card-inner">
@@ -865,9 +999,11 @@
   </main>
 </div>
 
-<script>
-  (function () {
-    const STORAGE_KEY = "mediaManagerStateV1";
+  <script>
+    (function () {
+      const STORAGE_KEY = "mediaManagerStateV1";
+      const BACKEND_URL = "http://localhost:5001";
+      const BACKEND_TIMEOUT = 4500;
 
     /** 初始数据：请按需替换为你自己的视频 / 图片路径 */
     const initialState = {
@@ -935,6 +1071,13 @@
     const videoTagInput = document.getElementById("videoTagInput");
     const addVideoTagForm = document.getElementById("addVideoTagForm");
     const deleteCurrentVideoBtn = document.getElementById("deleteCurrentVideoBtn");
+    const localVideoForm = document.getElementById("localVideoForm");
+    const localVideoFileInput = document.getElementById("localVideoFile");
+    const localVideoTitleInput = document.getElementById("localVideoTitle");
+    const localVideoTagsInput = document.getElementById("localVideoTags");
+    const localVideoPathInput = document.getElementById("localVideoPath");
+    const localVideoHint = document.getElementById("localVideoHint");
+    const backendStatus = document.getElementById("backendStatus");
 
     const photoPreviewWrapper = document.getElementById("photoPreviewWrapper");
     const currentPhotoTitle = document.getElementById("currentPhotoTitle");
@@ -958,6 +1101,98 @@
       });
     }
 
+    function parseTags(raw) {
+      return (raw || "")
+        .split(/[，,]/)
+        .map((t) => t.trim())
+        .filter(Boolean);
+    }
+
+    function isBlobUrl(src) {
+      return typeof src === "string" && src.startsWith("blob:");
+    }
+
+    function setLocalVideoHint(message, isError = false) {
+      if (!localVideoHint) return;
+      localVideoHint.textContent = message;
+      localVideoHint.style.color = isError ? "#fecaca" : "var(--text-muted)";
+    }
+
+    function setBackendBadge(text, status) {
+      if (!backendStatus) return;
+      backendStatus.textContent = "";
+      const dot = document.createElement("span");
+      dot.className = "status-dot";
+      backendStatus.appendChild(dot);
+      backendStatus.append(document.createTextNode(text));
+      backendStatus.classList.remove("ok", "error");
+      if (status === "ok") {
+        backendStatus.classList.add("ok");
+      }
+      if (status === "error") {
+        backendStatus.classList.add("error");
+      }
+    }
+
+    const apiClient = (() => {
+      let reachable = false;
+
+      async function request(path, options = {}) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), BACKEND_TIMEOUT);
+        const headers = {
+          "Content-Type": "application/json",
+          ...(options.headers || {})
+        };
+        try {
+          const response = await fetch(`${BACKEND_URL}${path}`, {
+            ...options,
+            headers,
+            signal: controller.signal
+          });
+          if (!response.ok) {
+            throw new Error(`请求失败：${response.status}`);
+          }
+          reachable = true;
+          return response;
+        } catch (err) {
+          reachable = false;
+          throw err;
+        } finally {
+          clearTimeout(timeout);
+        }
+      }
+
+      return {
+        isOnline() {
+          return reachable;
+        },
+        async fetchVideos() {
+          const res = await request("/api/videos");
+          return res.json();
+        },
+        async saveVideo(payload) {
+          const res = await request("/api/videos", {
+            method: "POST",
+            body: JSON.stringify(payload)
+          });
+          return res.json();
+        },
+        async updateVideoTags(id, tags) {
+          await request(`/api/videos/${id}/tags`, {
+            method: "POST",
+            body: JSON.stringify({ tags })
+          });
+        },
+        async deleteVideo(id) {
+          await request(`/api/videos/${id}`, { method: "DELETE" });
+        },
+        markOffline() {
+          reachable = false;
+        }
+      };
+    })();
+
     function loadState() {
       try {
         const stored = localStorage.getItem(STORAGE_KEY);
@@ -971,9 +1206,10 @@
 
     function saveState() {
       try {
+        const persistentVideos = state.videos.filter((v) => !v.isLocal);
         const dataToSave = {
           currentTab: state.currentTab,
-          videos: state.videos,
+          videos: persistentVideos,
           photos: state.photos,
           currentVideoId: state.currentVideoId,
           currentPhotoId: state.currentPhotoId,
@@ -1009,6 +1245,83 @@
         (item.tags || []).forEach((t) => set.add(t));
       });
       return Array.from(set).sort();
+    }
+
+    function normalizeBackendVideo(raw) {
+      const backendId = Number(raw.id);
+      const tags = Array.isArray(raw.tags)
+        ? raw.tags.filter(Boolean)
+        : [];
+      return {
+        id: backendId ? backendId + 1000000 : Date.now(),
+        backendId,
+        title: raw.title || "未命名视频",
+        src: raw.src || "",
+        tags,
+        isLocal: false,
+        fromBackend: true
+      };
+    }
+
+    function mergeBackendVideos(list) {
+      if (!Array.isArray(list)) return;
+      let changed = false;
+      list.forEach((raw) => {
+        const video = normalizeBackendVideo(raw);
+        const existed = state.videos.find((v) => v.backendId === video.backendId);
+        if (existed) {
+          existed.title = video.title;
+          existed.src = video.src;
+          existed.tags = video.tags;
+        } else {
+          state.videos.push(video);
+        }
+        changed = true;
+      });
+      if (changed) {
+        syncCurrentSelection();
+        renderAll();
+        saveState();
+      }
+    }
+
+    async function syncVideoTagsToBackend(video) {
+      if (!video || !video.backendId) return;
+      try {
+        await apiClient.updateVideoTags(video.backendId, video.tags || []);
+        setBackendBadge("已连接后端 · 标签已更新", "ok");
+      } catch (err) {
+        setBackendBadge("标签未同步：后端不可用", "error");
+      }
+    }
+
+    async function maybePersistVideo(video, providedPath) {
+      if (!video) return;
+      const chosenPath = providedPath || video.src;
+      if (isBlobUrl(chosenPath)) return;
+      const previousId = video.id;
+      try {
+        const payload = await apiClient.saveVideo({
+          title: video.title,
+          src: chosenPath,
+          tags: video.tags || [],
+          is_local: !!video.isLocal
+        });
+        const data = payload && (payload.data || payload);
+        if (data && data.id) {
+          video.backendId = Number(data.id);
+          video.id = video.backendId + 1000000;
+          video.isLocal = false;
+          if (state.currentVideoId === previousId) {
+            state.currentVideoId = video.id;
+          }
+          setBackendBadge("已同步到后端", "ok");
+          saveState();
+          renderAll();
+        }
+      } catch (err) {
+        setBackendBadge("无法同步到后端，已保持本地播放", "error");
+      }
     }
 
     /** 渲染函数 */
@@ -1074,6 +1387,12 @@
             const tagHtml = (v.tags || [])
               .map((t) => `<span class="mini-tag">${escapeHtml(t)}</span>`)
               .join("");
+            const localBadge = v.isLocal
+              ? '<span class="mini-tag mini-tag-local">本地</span>'
+              : "";
+            const combinedTags = `${localBadge}${
+              tagHtml || '<span class="mini-tag" style="opacity:0.7;">无标签</span>'
+            }`;
 
             return `
               <div class="video-item ${
@@ -1088,10 +1407,7 @@
                   </div>
                   <div class="video-extra">
                     <div class="video-tags">
-                      ${
-                        tagHtml ||
-                        '<span class="mini-tag" style="opacity:0.7;">无标签</span>'
-                      }
+                      ${combinedTags}
                     </div>
                     <span class="counter">${
                       v.tags ? v.tags.length : 0
@@ -1171,7 +1487,12 @@
 
       currentVideoTitle.textContent = video.title;
       const tagCount = video.tags ? video.tags.length : 0;
-      currentVideoMeta.textContent = `${tagCount} 个标签`;
+      const metaSuffix = video.isLocal
+        ? " · 本地文件"
+        : video.fromBackend
+          ? " · 后端同步"
+          : "";
+      currentVideoMeta.textContent = `${tagCount} 个标签${metaSuffix}`;
 
       if (!video.tags || video.tags.length === 0) {
         currentVideoTags.innerHTML =
@@ -1263,6 +1584,23 @@
       renderPhotoView();
     }
 
+    async function bootstrapBackendSync() {
+      setBackendBadge("正在连接后端...", null);
+      try {
+        const payload = await apiClient.fetchVideos();
+        const list = Array.isArray(payload?.data)
+          ? payload.data
+          : Array.isArray(payload)
+            ? payload
+            : [];
+        mergeBackendVideos(list);
+        setBackendBadge(`已连接后端 · ${list.length} 条视频`, "ok");
+      } catch (err) {
+        apiClient.markOffline();
+        setBackendBadge("未检测到后端，当前为本地模式", "error");
+      }
+    }
+
     /** 事件绑定 */
 
     // Tab 切换
@@ -1331,6 +1669,7 @@
       if (tagIndex < 0 || tagIndex >= video.tags.length) return;
 
       video.tags.splice(tagIndex, 1);
+      syncVideoTagsToBackend(video);
       renderAll();
       saveState();
     });
@@ -1364,9 +1703,49 @@
       if (!video.tags.includes(value)) {
         video.tags.push(value);
       }
+      syncVideoTagsToBackend(video);
       videoTagInput.value = "";
       renderAll();
       saveState();
+    });
+
+    // 添加本地视频（仅当前会话有效）
+    localVideoForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const file = localVideoFileInput.files[0];
+      if (!file) {
+        setLocalVideoHint("请选择一个本地视频文件。", true);
+        return;
+      }
+
+      const title = (localVideoTitleInput.value || file.name).trim();
+      const tags = parseTags(localVideoTagsInput.value);
+      const manualPath = (localVideoPathInput.value || "").trim();
+      const newVideo = {
+        id: Date.now(),
+        title: title || file.name,
+        src: URL.createObjectURL(file),
+        tags,
+        isLocal: true,
+        fileName: file.name,
+        fileSize: file.size,
+        persistedSrc: manualPath || null
+      };
+
+      state.videos.unshift(newVideo);
+      state.currentVideoId = newVideo.id;
+      renderAll();
+      saveState();
+      localVideoForm.reset();
+      setLocalVideoHint(
+        manualPath
+          ? "已加载本地视频，填写的路径将用于后端同步"
+          : "已加载本地视频，刷新后需重新选择文件。"
+      );
+
+      if (manualPath) {
+        maybePersistVideo(newVideo, manualPath);
+      }
     });
 
     // 为当前照片添加标签
@@ -1393,6 +1772,12 @@
         return;
       }
       state.videos = state.videos.filter((v) => v.id !== video.id);
+      if (video.backendId) {
+        apiClient
+          .deleteVideo(video.backendId)
+          .then(() => setBackendBadge("后端已删除视频", "ok"))
+          .catch(() => setBackendBadge("后端删除失败，已在前端移除", "error"));
+      }
       syncCurrentSelection();
       renderAll();
       saveState();
@@ -1415,6 +1800,7 @@
     loadState();
     syncCurrentSelection();
     renderAll();
+    bootstrapBackendSync();
   })();
 </script>
 </body>
