@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>媒体总览 | 多媒体管理中心</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="app-title">
+      <div class="app-title-main">
+        媒体总览
+        <span class="app-badge">合并视频与照片</span>
+      </div>
+      <div class="app-subtitle">一页浏览全部媒体，使用标签快速筛选，点击卡片跳转播放</div>
+    </div>
+    <div class="toolbar-tabs" aria-label="页面跳转">
+      <a class="tab-btn" href="index.html">返回主控台</a>
+      <button class="tab-btn active" type="button">总览</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="column sidebar">
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="card-title-icon">🏷️</span>
+                标签筛选
+              </div>
+              <div class="card-subtitle">选择标签后仅显示匹配的视频 / 照片</div>
+            </div>
+            <div id="libraryTotal" class="pill-badge">
+              <span class="pill-badge-dot"></span>
+              <span>0 条媒体</span>
+            </div>
+          </div>
+          <div id="libraryTagBar" class="tag-filter-bar">
+            <!-- 动态插入标签按钮 -->
+          </div>
+        </div>
+      </div>
+
+      <div class="card helper-card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="card-title-icon">ℹ️</span>
+                提示
+              </div>
+              <div class="card-subtitle">数据来源于主页面保存的本地 / 后端条目</div>
+            </div>
+          </div>
+          <div class="input-note">在主页面新增或编辑标签后，刷新此页即可同步。点击任意媒体卡片可跳转到主页面查看详情和播放。</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="column content">
+      <div class="card">
+        <div class="card-inner">
+          <div class="card-header">
+            <div>
+              <div class="card-title">
+                <span class="card-title-icon">📚</span>
+                媒体集合
+              </div>
+              <div class="card-subtitle">按标签过滤，点击卡片跳转到主页面播放</div>
+            </div>
+          </div>
+          <div id="libraryGrid" class="library-grid">
+            <!-- 卡片 -->
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script type="module" src="js/library.js"></script>
+</body>
+</html>

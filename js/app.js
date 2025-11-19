@@ -22,6 +22,9 @@ class MediaManager {
     this.stateManager.loadFromLocalStorage();
     this.stateManager.syncCurrentSelection();
 
+    // 检查 URL hash，如果有则切换到对应标签页
+    this.handleUrlHash();
+
     // 订阅状态变化，自动重新渲染
     this.stateManager.subscribe(() => {
       this.uiRenderer.renderAll();
@@ -35,6 +38,19 @@ class MediaManager {
 
     // 从后端同步数据
     this.stateManager.bootstrapBackendSync();
+  }
+
+  /**
+   * 处理 URL hash，支持从其他页面跳转过来时自动定位
+   */
+  handleUrlHash() {
+    const hash = window.location.hash.substring(1); // 去掉 # 号
+    if (hash === "video" || hash === "photo") {
+      const state = this.stateManager.getState();
+      if (state.currentTab !== hash) {
+        this.stateManager.setState({ currentTab: hash });
+      }
+    }
   }
 }
 
