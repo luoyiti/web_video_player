@@ -43,6 +43,24 @@
   --twitter-text: #0f1419;
   --twitter-secondary: #536471;
   --twitter-shadow: rgba(101, 119, 134, 0.2);
+  --twitter-green: #00ba7c;
+  
+  /* Background variables */
+  --bg-primary: #ffffff;
+  --bg-header: rgba(255, 255, 255, 0.85);
+  --bg-hover: rgba(0, 0, 0, 0.03);
+}
+
+.dark-mode {
+  --twitter-light: #1e2732;
+  --twitter-border: #38444d;
+  --twitter-text: #f7f9f9;
+  --twitter-secondary: #8b98a5;
+  --twitter-shadow: rgba(255, 255, 255, 0.05);
+  
+  --bg-primary: #15202b;
+  --bg-header: rgba(21, 32, 43, 0.85);
+  --bg-hover: rgba(255, 255, 255, 0.05);
 }
 
 * {
@@ -52,7 +70,7 @@
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: #ffffff;
+  background: var(--bg-primary);
   color: var(--twitter-text);
   min-height: 100vh;
   display: flex;
@@ -65,7 +83,7 @@ body {
   max-width: 1280px;
   width: 100%;
   min-height: 100vh;
-  background: #ffffff;
+  background: var(--bg-primary);
   border-left: 1px solid var(--twitter-border);
   border-right: 1px solid var(--twitter-border);
   display: flex;
@@ -80,7 +98,7 @@ header {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--bg-header);
   backdrop-filter: blur(12px);
   position: sticky;
   top: 0;
@@ -203,7 +221,7 @@ header {
 }
 
 .card {
-  background: #ffffff;
+  background: var(--bg-primary);
   border-radius: 0;
   border: none;
   border-bottom: 1px solid var(--twitter-border);
@@ -260,7 +278,7 @@ header {
   padding: 6px 16px;
   font-size: 13px;
   font-weight: 500;
-  background: #ffffff;
+  background: var(--bg-primary);
   color: var(--twitter-text);
   cursor: pointer;
   display: inline-flex;
@@ -368,7 +386,7 @@ header {
   gap: 12px;
   padding: 12px 16px;
   border-radius: 0;
-  background: #ffffff;
+  background: var(--bg-primary);
   border: none;
   border-bottom: 1px solid var(--twitter-border);
   cursor: pointer;
@@ -377,7 +395,7 @@ header {
 }
 
 .video-item:hover {
-  background: rgba(0, 0, 0, 0.03);
+  background: var(--bg-hover);
 }
 
 .video-item-active {
@@ -490,7 +508,7 @@ video {
   flex-direction: column;
   gap: 12px;
   padding: 16px;
-  background: #ffffff;
+  background: var(--bg-primary);
   border-radius: 16px;
   border: 1px solid var(--twitter-border);
 }
@@ -539,7 +557,7 @@ video {
   border-radius: 9999px;
   border: 1px solid var(--twitter-border);
   padding: 6px 12px;
-  background: #ffffff;
+  background: var(--bg-primary);
   font-size: 13px;
   font-weight: 500;
   display: inline-flex;
@@ -592,7 +610,7 @@ video {
   border: 1px solid var(--twitter-border);
   padding: 12px 16px;
   font-size: 15px;
-  background: #ffffff;
+  background: var(--bg-primary);
   color: var(--twitter-text);
   min-width: 0;
   flex: 1;
@@ -670,7 +688,7 @@ video {
   border-radius: 16px;
   border: 1px solid var(--twitter-border);
   padding: 12px;
-  background: #ffffff;
+  background: var(--bg-primary);
   box-shadow: 0 1px 3px var(--twitter-shadow);
   display: flex;
   flex-direction: column;
@@ -791,7 +809,7 @@ video {
   overflow: hidden;
   cursor: pointer;
   border: 1px solid var(--twitter-border);
-  background: #ffffff;
+  background: var(--bg-primary);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 1px 2px var(--twitter-shadow);
 }

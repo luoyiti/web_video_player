@@ -1,11 +1,14 @@
 import { StateManager } from "./state.js";
 import { escapeHtml } from "./utils.js";
+import { ThemeManager } from "./theme.js";
 
 const tagBar = document.getElementById("libraryTagBar");
 const grid = document.getElementById("libraryGrid");
 const totalBadge = document.getElementById("libraryTotal");
 
 const stateManager = new StateManager();
+const themeManager = new ThemeManager();
+
 stateManager.loadFromLocalStorage();
 stateManager.syncCurrentSelection();
 stateManager.bootstrapBackendSync();
@@ -51,7 +54,7 @@ function renderTotalBadge(count) {
   const dot = totalBadge.querySelector(".pill-badge-dot");
   const textNode = totalBadge.querySelector("span:last-child");
   if (dot) {
-    dot.style.background = count > 0 ? "var(--aurora-green)" : "var(--border)";
+    dot.style.background = count > 0 ? "var(--twitter-green)" : "var(--twitter-border)";
   }
   if (textNode) {
     textNode.textContent = `${count} 条媒体`;
@@ -172,6 +175,7 @@ function bindMediaClick() {
 }
 
 function init() {
+  themeManager.init();
   stateManager.subscribe(render);
   bindTagClick();
   bindMediaClick();

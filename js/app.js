@@ -6,18 +6,23 @@
 import { StateManager } from "./state.js";
 import { UIRenderer } from "./ui.js";
 import { EventHandler } from "./events.js";
+import { ThemeManager } from "./theme.js";
 
 class MediaManager {
   constructor() {
     this.stateManager = new StateManager();
     this.uiRenderer = new UIRenderer(this.stateManager);
     this.eventHandler = new EventHandler(this.stateManager, this.uiRenderer);
+    this.themeManager = new ThemeManager();
   }
 
   /**
    * 初始化应用
    */
   init() {
+    // 初始化主题
+    this.themeManager.init();
+
     // 加载本地存储的状态
     this.stateManager.loadFromLocalStorage();
     this.stateManager.syncCurrentSelection();
