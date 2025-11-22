@@ -44,7 +44,9 @@ web_video_player/
 ├── index.html          # 主控制台：视频 / 照片管理
 ├── library.html        # 媒体总览（集合管理）
 ├── chagpt.html         # 原始单文件版本（保留作为备份）
-├── backend.py          # 可选后端 Demo（用于持久化，可按需启用）
+├── server.js           # Node.js 服务（静态文件 + API）
+├── package.json        # Node.js 项目配置
+├── backend.py          # 旧版 Python Demo（仅作参考）
 ├── css/
 │   └── styles.css      # 全局样式（Twitter + 夜间模式）
 ├── js/
@@ -53,7 +55,7 @@ web_video_player/
 │   ├── state.js        # 状态管理 & localStorage 持久化
 │   ├── ui.js           # 所有 DOM 渲染逻辑
 │   ├── events.js       # 事件绑定与交互逻辑
-│   ├── api.js          # 与后端 `backend.py` 交互（可选）
+│   ├── api.js          # 与 Node.js 后端交互
 │   ├── utils.js        # 工具函数（如 escapeHtml 等）
 │   ├── library.js      # `library.html` 页面逻辑
 │   └── theme.js        # 主题管理（日间 / 夜间模式切换）
@@ -68,35 +70,27 @@ web_video_player/
 
 ## 运行方式
 
-本项目不需要构建，只要有一个简单的 HTTP 服务器即可运行。
+Node.js 版本的服务同时托管静态页面与 SQLite API，只需要一次启动即可完成前后端联调。
 
-### 1. 启动本地服务器
-
-在项目根目录下执行（macOS / Linux / Windows 均可）：
+### 1. 安装依赖
 
 ```bash
-cd web_video_player
-python3 -m http.server 8000
+npm install
 ```
 
-然后在浏览器中访问：
-
-- 主页面：`http://localhost:8000/index.html`
-- 总览页：`http://localhost:8000/library.html`
-
-> 直接用 `file://` 打开 HTML 可能会因为浏览器安全策略导致模块脚本无法加载，所以推荐使用本地服务器。
-
-### 2. 可选：启动后端（如果需要持久化到 SQLite 等）
-
-如果你希望把部分标签 / 媒体信息同步到后端，可以参考 `backend.py` 中的实现自行扩展。一个典型的做法是：
+### 2. 启动一体化服务
 
 ```bash
-python3 backend.py
+npm start
 ```
 
-然后在前端配置中（例如 `config.js` 或 `api.js`）指向对应的后端地址（默认假设为 `http://localhost:5001`）。
+服务器默认监听 `http://localhost:5001`，访问路径如下：
 
-> 如果只是体验前端功能，可以完全忽略后端部分。
+- 主页面：`http://localhost:5001/index.html`
+- 总览页：`http://localhost:5001/library.html`
+- API 示例：`http://localhost:5001/api/videos`
+
+> 如果只想做最简单的静态预览，仍可使用 `python3 -m http.server` 等命令，但该方式不会启动 SQLite 接口。
 
 ---
 
@@ -192,7 +186,7 @@ python3 backend.py
 
 - 替换示例视频 / 照片路径为自己的资源
 - 在 `config.js` 中调整初始数据结构
-- 在 `api.js` 与 `backend.py` 中增加真实的上传 / 删除 / 标签同步接口
+- 在 `api.js` 与 `server.js` 中增加真实的上传 / 删除 / 标签同步接口
 - 扩展夜间模式为多主题（例如高对比度主题）
 - 增加搜索框、排序功能、分页等
 

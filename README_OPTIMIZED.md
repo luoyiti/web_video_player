@@ -6,6 +6,8 @@
 web_video_player/
 ├── index.html           # 优化后的主 HTML 文件
 ├── chagpt.html          # 原始单文件版本（保留作为参考）
+├── server.js            # Node.js 服务（静态资源 + API）
+├── package.json         # Node.js 配置与脚本
 ├── css/
 │   └── styles.css       # 所有样式表
 ├── js/
@@ -18,7 +20,7 @@ web_video_player/
 │   └── app.js           # 应用主入口
 ├── videos/              # 视频资源目录
 ├── photos/              # 图片资源目录
-└── backend.py           # 后端服务器
+└── backend.py           # 旧版 Python Demo（仅供参考）
 
 ```
 
@@ -54,27 +56,16 @@ web_video_player/
 
 ## 使用方法
 
-### 启动本地服务器
+Node.js 服务会一次性启动前端与 SQLite 后端：
 
 ```bash
-# 方法 1: Python 3
-python3 -m http.server 8000
-
-# 方法 2: Node.js (需要安装 http-server)
-npx http-server -p 8000
+npm install
+npm start
 ```
 
-### 访问应用
+打开 `http://localhost:5001` 即可访问 `index.html`、`library.html` 以及 `/api/videos` 接口。
 
-```
-http://localhost:8000/index.html
-```
-
-### 启动后端服务（可选）
-
-```bash
-python3 backend.py
-```
+> 仍然可以使用 `python3 -m http.server` 等方式做纯静态预览，但不包含 API。
 
 ## 模块说明
 

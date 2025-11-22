@@ -1,0 +1,25 @@
+{
+  "name": "web_video_player",
+  "version": "1.0.0",
+  "description": "一个基于原生 HTML / CSS / JavaScript 的本地多媒体管理 Demo，用于统一管理视频与照片，支持标签筛选、简单的集合概览和夜间模式切换。",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luoyiti/web_video_player.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/luoyiti/web_video_player/issues"
+  },
+  "homepage": "https://github.com/luoyiti/web_video_player#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "sqlite3": "^5.1.7"
+  }
+}

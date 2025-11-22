@@ -1,9 +1,14 @@
+const backendOrigin =
+  typeof window !== "undefined" && window.location.origin && window.location.origin !== "null"
+    ? window.location.origin
+    : "http://localhost:5001";
+
 /**
  * 应用配置项
  */
 export const CONFIG = {
   STORAGE_KEY: "mediaManagerStateV1",
-  BACKEND_URL: "http://localhost:5001",
+  BACKEND_URL: backendOrigin,
   BACKEND_TIMEOUT: 4500
 };
 
