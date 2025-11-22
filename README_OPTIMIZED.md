@@ -20,7 +20,6 @@ web_video_player/
 │   └── app.js           # 应用主入口
 ├── videos/              # 视频资源目录
 ├── photos/              # 图片资源目录
-└── backend.py           # 旧版 Python Demo（仅供参考）
 
 ```
 
